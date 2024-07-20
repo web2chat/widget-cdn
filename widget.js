@@ -5,7 +5,7 @@
   let bootConfig = {};
   var initialized = false;
 
-  const appUrl = "http://localhost:5175";
+  const appUrl = "https://frontend.web2chat.ai";
 
   function isMobileLayout() {
     return window.innerWidth <= 450;
