@@ -24,6 +24,7 @@
     primary_color: "#007aff",
     custom_launcher_selector: null,
     hide_default_launcher: false,
+    is_light_primary_color: false,
     is_mobile: isMobileLayout(),
     alignment: "right",
     vertical_padding: 20,
@@ -83,27 +84,28 @@
   function updateToggleButtonContent() {
     if (!toggleButton) return;
     if (config.isOpen) {
+      const fillColor = config.is_light_primary_color ? "black" : "white";
       toggleButton.innerHTML = `
-          <div style="opacity: 100; display: flex; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; width: 48px; height: 48px; user-select: none;">
-              <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M18.601 8.39897C18.269 8.06702 17.7309 8.06702 17.3989 8.39897L12 13.7979L6.60099 8.39897C6.26904 8.06702 5.73086 8.06702 5.39891 8.39897C5.06696 8.73091 5.06696 9.2691 5.39891 9.60105L11.3989 15.601C11.7309 15.933 12.269 15.933 12.601 15.601L18.601 9.60105C18.9329 9.26910 18.9329 8.73091 18.601 8.39897Z" fill="white"></path>
-              </svg>
-          </div>`;
+            <div style="opacity: 100; display: flex; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; width: 48px; height: 48px; user-select: none;">
+                <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M18.601 8.39897C18.269 8.06702 17.7309 8.06702 17.3989 8.39897L12 13.7979L6.60099 8.39897C6.26904 8.06702 5.73086 8.06702 5.39891 8.39897C5.06696 8.73091 5.06696 9.2691 5.39891 9.60105L11.3989 15.601C11.7309 15.933 12.269 15.933 12.601 15.601L18.601 9.60105C18.9329 9.26910 18.9329 8.73091 18.601 8.39897Z" fill="${fillColor}"></path>
+                </svg>
+            </div>`;
     } else {
       if (config.icon) {
         // If there is a custom icon, use an <img> tag
         toggleButton.innerHTML = `
-          <div style="opacity: 1; display: flex; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; width: 48px; height: 48px; user-select: none;">
-            <img src="${config.icon}" width="40" height="40" alt="Icon" />
-          </div>`;
+            <div style="opacity: 1; display: flex; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; width: 48px; height: 48px; user-select: none;">
+              <img src="${config.icon}" width="40" height="40" alt="Icon" />
+            </div>`;
       } else {
         // Otherwise
         toggleButton.innerHTML = `
-          <div style="opacity: 100; display: flex; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; width: 48px; height: 48px; user-select: none;">
-              <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path fill="white" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"></path>
-              </svg>
-          </div>`;
+            <div style="opacity: 100; display: flex; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; width: 48px; height: 48px; user-select: none;">
+                <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path fill="white" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"></path>
+                </svg>
+            </div>`;
       }
     }
   }
@@ -170,53 +172,53 @@
 
     if (config.is_mobile) {
       appContainer.style.cssText = `
-        z-index: 2147483001;
-        position: fixed;
-        transform-origin: ${
-          config.alignment === "right" ? "right bottom" : "left bottom"
-        };
-        height: 100%;
-        min-height: 80px;
-        width: 100%;
-        max-height: none;
-        inset: 0px;
-        box-shadow: rgba(0, 0, 0, 0.16) 0px 5px 40px;
-        border-radius: 0px;
-        overflow: hidden;
-        transition: width 200ms ease 0s, height 200ms ease 0s, max-height 200ms ease 0s, transform 300ms cubic-bezier(0, 1.2, 1, 1) 0s, opacity 83ms ease-out 0s;
-        pointer-events: all;
-        transform: scale(${config.isOpen && config.isLoaded ? 1 : 0});
-        opacity: ${config.isOpen && config.isLoaded ? 1 : 0};
-      `;
+          z-index: 2147483001;
+          position: fixed;
+          transform-origin: ${
+            config.alignment === "right" ? "right bottom" : "left bottom"
+          };
+          height: 100%;
+          min-height: 80px;
+          width: 100%;
+          max-height: none;
+          inset: 0px;
+          box-shadow: rgba(0, 0, 0, 0.16) 0px 5px 40px;
+          border-radius: 0px;
+          overflow: hidden;
+          transition: width 200ms ease 0s, height 200ms ease 0s, max-height 200ms ease 0s, transform 300ms cubic-bezier(0, 1.2, 1, 1) 0s, opacity 83ms ease-out 0s;
+          pointer-events: all;
+          transform: scale(${config.isOpen && config.isLoaded ? 1 : 0});
+          opacity: ${config.isOpen && config.isLoaded ? 1 : 0};
+        `;
     } else {
       appContainer.style.cssText = `
-        z-index: 2147483000;
-        position: fixed;
-        bottom: ${config.vertical_padding + bottomOffset}px;
-        ${
-          config.alignment === "right"
-            ? `right: ${config.horizontal_padding}px`
-            : `left: ${config.horizontal_padding}px`
-        };
-        transform-origin: ${
-          config.alignment === "right" ? "right bottom" : "left bottom"
-        };
-        height: ${
-          config.isExpanded
-            ? `calc(100% - 104px)`
-            : `min(${config.height}px, 100% - 104px)`
-        };
-        min-height: 80px;
-        width: ${config.isExpanded ? 688 : config.width}px;
-        max-height: ${config.isExpanded ? `calc(100% - 104px)` : "704px"};
-        box-shadow: rgba(0, 0, 0, 0.16) 0px 5px 40px;
-        border-radius: 16px;
-        overflow: hidden;
-        transition: width 200ms ease 0s, height 200ms ease 0s, max-height 200ms ease 0s, transform 300ms cubic-bezier(0, 1.2, 1, 1) 0s, opacity 83ms ease-out 0s;
-        pointer-events: all;
-        transform: scale(${config.isOpen && config.isLoaded ? 1 : 0});
-        opacity: ${config.isOpen && config.isLoaded ? 1 : 0};
-      `;
+          z-index: 2147483000;
+          position: fixed;
+          bottom: ${config.vertical_padding + bottomOffset}px;
+          ${
+            config.alignment === "right"
+              ? `right: ${config.horizontal_padding}px`
+              : `left: ${config.horizontal_padding}px`
+          };
+          transform-origin: ${
+            config.alignment === "right" ? "right bottom" : "left bottom"
+          };
+          height: ${
+            config.isExpanded
+              ? `calc(100% - 104px)`
+              : `min(${config.height}px, 100% - 104px)`
+          };
+          min-height: 80px;
+          width: ${config.isExpanded ? 688 : config.width}px;
+          max-height: ${config.isExpanded ? `calc(100% - 104px)` : "704px"};
+          box-shadow: rgba(0, 0, 0, 0.16) 0px 5px 40px;
+          border-radius: 16px;
+          overflow: hidden;
+          transition: width 200ms ease 0s, height 200ms ease 0s, max-height 200ms ease 0s, transform 300ms cubic-bezier(0, 1.2, 1, 1) 0s, opacity 83ms ease-out 0s;
+          pointer-events: all;
+          transform: scale(${config.isOpen && config.isLoaded ? 1 : 0});
+          opacity: ${config.isOpen && config.isLoaded ? 1 : 0};
+        `;
     }
   }
 
@@ -224,27 +226,27 @@
     if (!toggleButton || config.hide_default_launcher || !config.isLoaded)
       return;
     toggleButton.style.cssText = `
-        display: ${config.hide_default_launcher ? "none" : "block"};
-        position: fixed;
-        bottom: ${config.vertical_padding}px;
-        ${
-          config.alignment === "right"
-            ? `right: ${config.horizontal_padding}px`
-            : `left: ${config.horizontal_padding}px`
-        };
-        padding: 0;
-        margin: 0;
-        border: none;
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background-color: ${config.primary_color};
-        cursor: pointer;
-        box-sizing: border-box;
-        z-index: 2147483000;
-        transition: transform 167ms cubic-bezier(0.33, 0, 0, 1);
-        box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.06), 0 2px 32px 0 rgba(0, 0, 0, 0.16);
-      `;
+          display: ${config.hide_default_launcher ? "none" : "block"};
+          position: fixed;
+          bottom: ${config.vertical_padding}px;
+          ${
+            config.alignment === "right"
+              ? `right: ${config.horizontal_padding}px`
+              : `left: ${config.horizontal_padding}px`
+          };
+          padding: 0;
+          margin: 0;
+          border: none;
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background-color: ${config.primary_color};
+          cursor: pointer;
+          box-sizing: border-box;
+          z-index: 2147483000;
+          transition: transform 167ms cubic-bezier(0.33, 0, 0, 1);
+          box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.06), 0 2px 32px 0 rgba(0, 0, 0, 0.16);
+        `;
     toggleButton.onmouseover = function () {
       toggleButton.style.transform = "scale(1.1)";
       toggleButton.style.transition =
