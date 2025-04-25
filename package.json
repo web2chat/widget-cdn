@@ -2,10 +2,9 @@
   "name": "widget-cdn",
   "version": "1.0.0",
   "description": "",
-  "main": "shopify-widget.js",
   "scripts": {
     "minify-widget": "terser widget.js -o widget.min.js -c passes=3,pure_funcs=['console.log','console.warn'] -m toplevel --comments false",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "minify-shopify-widget": "terser shopify-widget.js -o shopify-widget.min.js -c passes=3,pure_funcs=['console.log','console.warn'] -m toplevel --comments false"
   },
   "repository": {
     "type": "git",
