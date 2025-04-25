@@ -1,0 +1,23 @@
+{
+  "name": "widget-cdn",
+  "version": "1.0.0",
+  "description": "",
+  "main": "shopify-widget.js",
+  "scripts": {
+    "minify-widget": "terser widget.js -o widget.min.js -c passes=3,pure_funcs=['console.log','console.warn'] -m toplevel --comments false",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web2chat/widget-cdn.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/web2chat/widget-cdn/issues"
+  },
+  "homepage": "https://github.com/web2chat/widget-cdn#readme",
+  "devDependencies": {
+    "terser": "^5.39.0"
+  }
+}
