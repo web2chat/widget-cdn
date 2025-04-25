@@ -137,7 +137,7 @@
         // If there is a custom icon, use an <img> tag
         toggleButton.innerHTML = `
             <div style="opacity: 1; display: none; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; width: 48px; height: 48px; user-select: none;">
-                <img src="${config.icon}" width="40" height="40" alt="Icon" style="border-radius: 50%;" />
+                <img src="${config.icon}" width="40" height="40" alt="Icon" />
             </div>`;
       } else {
         // Otherwise
