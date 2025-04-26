@@ -133,7 +133,7 @@
                 </svg>
             </div>`;
     } else {
-      const displayStyle = initialized ? "flex" : "none";
+      const displayStyle = config.isLoaded ? "flex" : "none";
 
       if (config.icon) {
         // If there is a custom icon, use an <img> tag
