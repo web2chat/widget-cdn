@@ -124,8 +124,8 @@
   function updateToggleButtonContent() {
     if (!toggleButton) return;
     if (config.isOpen) {
-      const fillColor = config.is_light_primary_color ? "black" : "white";
-      // const fillColor = "white";
+      // const fillColor = config.is_light_primary_color ? "black" : "white";
+      const fillColor = "white";
       toggleButton.innerHTML = `
             <div style="opacity: 100; display: flex; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; width: 48px; height: 48px; user-select: none;">
                 <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
