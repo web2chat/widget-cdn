@@ -478,11 +478,16 @@
   }
 
   function getPageData() {
+    const currentUrl = new URL(window.location.href);
+    const referrerUrl = document.referrer ? new URL(document.referrer) : null;
+
     return {
-      page_url: window.location.href,
+      page_url: currentUrl.origin + currentUrl.pathname,
       page_title: document.title,
       page_description: document.description,
-      page_referer: document.referrer,
+      page_referer: referrerUrl
+        ? referrerUrl.origin + referrerUrl.pathname
+        : "",
     };
   }
 
