@@ -33,6 +33,7 @@
     vertical_padding: 20,
     horizontal_padding: 20,
     triggers: [],
+    news: [],
   };
 
   const defaultConfigKeys = Object.keys(config);
@@ -84,6 +85,26 @@
         // ✅ Save this timeout so we can cancel it if needed later
         pendingTriggerTimeouts.push(timeoutId);
       });
+    }
+    if (event.data.type === "news") {
+      const newNews = event.data.news || [];
+
+      // Reset news and update
+      config.news = newNews;
+
+      // Show news cards if widget is closed
+      if (!config.isOpen && newNews.length > 0) {
+        showLauncherMessageStack();
+        animateLastCard();
+      } else if (config.isOpen) {
+        // If widget is open, clear the stack
+        if (launcherStackContainer) launcherStackContainer.remove();
+      }
+    }
+    if (event.data.type === "clearNews") {
+      // Clear news cards when news visit is recorded
+      config.news = [];
+      if (launcherStackContainer) launcherStackContainer.remove();
     }
   });
 
@@ -198,6 +219,25 @@
       .join("");
   }
 
+  function humanizeTime(dateString) {
+    if (!dateString) return "";
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffMs = now - date;
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const diffMonths = Math.floor(diffDays / 30);
+    const diffYears = Math.floor(diffDays / 365);
+
+    if (diffMinutes < 1) return "now";
+    if (diffMinutes < 60) return `${diffMinutes}m`;
+    if (diffHours < 24) return `${diffHours}h`;
+    if (diffDays < 30) return `${diffDays}d`;
+    if (diffMonths < 12) return `${diffMonths}mo`;
+    return `${diffYears}y`;
+  }
+
   // after your existing functions but before showLauncherMessageStack
   function animateLastCard() {
     // const stack = document.getElementById("chat-launcher-message-stack");
@@ -225,8 +265,9 @@
   function showLauncherMessageStack() {
     if (config.isOpen) return;
 
-    const { triggers = [] } = config;
-    if (!toggleButton || triggers.length === 0) return;
+    const { triggers = [], news = [] } = config;
+    const allItems = [...triggers, ...news];
+    if (!toggleButton || allItems.length === 0) return;
 
     const defaultBg = getColor();
     const hoverBg = lightenColor(defaultBg, 40);
@@ -247,7 +288,7 @@
           ? `right: ${config.horizontal_padding}px`
           : `left: ${config.horizontal_padding}px`
       };
-      width: 300px;
+      width: 340px;
       pointer-events: auto;
     `;
 
@@ -262,8 +303,9 @@
     document.body.appendChild(launcherStackContainer);
 
     // --- create cards ---
-    const cards = triggers.map((t, i) => {
-      const { author } = t;
+    const cards = allItems.map((item, i) => {
+      const isTrigger = item.uuid !== undefined; // triggers have uuid, news have slug
+      const author = item.author;
       const card = document.createElement("div");
       card.className = "chat-message-card";
 
@@ -287,58 +329,89 @@
         display: flex;
         align-items: flex-start;
         gap: 10px;
-        margin-bottom: ${t.reply_buttons?.length ? "10px" : "0"};
+        margin-bottom: ${
+          isTrigger && item.reply_buttons?.length ? "10px" : "0"
+        };
       `;
 
-      const safeHTML = renderSimpleHTML(t.blocks);
-
-      if (author.avatar) {
-        // use the image if provided
-        msg.innerHTML = `
-          <img
-            src="${author.avatar}"
-            alt="${author.display_name}"
-            style="
-              width:32px;
-              height:32px;
-              border-radius:50%;
-              object-fit:cover;
-            "
-          />
-          <div style="flex:1">
-            <div style="font-size:12px;font-weight:400;color:#666666;margin-bottom:2px;">
-              ${author.display_name}
+      if (isTrigger) {
+        // Trigger layout
+        if (author.avatar) {
+          msg.innerHTML = `
+            <img
+              src="${author.avatar}"
+              alt="${author.display_name}"
+              style="width:32px;height:32px;border-radius:50%;object-fit:cover;"
+            />
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:400;color:#666666;margin-bottom:2px;">
+                ${author.display_name}
+              </div>
+              <div style="font-size:14px;color:#222222">${renderSimpleHTML(
+                item.blocks
+              )}</div>
             </div>
-            <div style="font-size:14px;color:#222222">
-              ${safeHTML}
+          `;
+        } else {
+          msg.innerHTML = `
+            <div style="width:32px;height:32px;border-radius:50%;background:${defaultBg};display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:14px;">
+              ${author.initial}
             </div>
-          </div>
-        `;
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:400;color:#666666;margin-bottom:2px;">
+                ${author.display_name}
+              </div>
+              <div style="font-size:14px;color:#222222">${renderSimpleHTML(
+                item.blocks
+              )}</div>
+            </div>
+          `;
+        }
       } else {
-        // fallback to initial circle
-        msg.innerHTML = `
-          <div style="
-            width:32px; height:32px; border-radius:50%;
-            background: ${defaultBg}; display:flex; align-items:center;
-            justify-content:center; color:white; font-weight:bold;
-            font-size:14px;
-          ">
-            ${author.initial}
-          </div>
-          <div style="flex:1">
-            <div style="font-size:12px;font-weight:400;color:#666666;margin-bottom:2px;">
-              ${author.display_name}
+        // News layout
+        const humanizedTime = humanizeTime(
+          item.published_at || item.created_at
+        );
+        if (author.avatar) {
+          msg.innerHTML = `
+            <img
+              src="${author.avatar}"
+              alt="${author.display_name}"
+              style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;"
+            />
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:14px;font-weight:500;color:#222222;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                ${item.title}
+              </div>
+              <div style="font-size:12px;color:#666666;display:flex;align-items:center;gap:4px;">
+                <span>${author.display_name}</span>
+                <span>•</span>
+                <span>${humanizedTime}</span>
+              </div>
             </div>
-            <div style="font-size:14px;color:#222222">
-              ${safeHTML}
+          `;
+        } else {
+          msg.innerHTML = `
+            <div style="width:32px;height:32px;border-radius:50%;background:${defaultBg};display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:14px;flex-shrink:0;">
+              ${author.initial}
             </div>
-          </div>
-        `;
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:14px;font-weight:500;color:#222222;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                ${item.title}
+              </div>
+              <div style="font-size:12px;color:#666666;display:flex;align-items:center;gap:4px;">
+                <span>${author.display_name}</span>
+                <span>•</span>
+                <span>${humanizedTime}</span>
+              </div>
+            </div>
+          `;
+        }
       }
       card.appendChild(msg);
 
-      // vertically stacked, right‑aligned buttons
-      if (t.reply_buttons?.length) {
+      // vertically stacked, right‑aligned buttons (only for triggers)
+      if (isTrigger && item.reply_buttons?.length) {
         const act = document.createElement("div");
         act.style.cssText = `
           display: flex;
@@ -348,7 +421,7 @@
           margin-left: 42px;
           margin-top: 4px;
         `;
-        t.reply_buttons.forEach((a) => {
+        item.reply_buttons.forEach((a) => {
           const btn = document.createElement("button");
           btn.textContent = a.text || a.label || "Action";
           btn.style.cssText = `
@@ -370,7 +443,7 @@
             iframe.contentWindow.postMessage(
               {
                 type: "showNewMessage",
-                data: { triggerId: t.uuid, message: a.text },
+                data: { triggerId: item.uuid, message: a.text },
               },
               appUrl
             );
@@ -378,7 +451,7 @@
 
             // ✅ Remove trigger from config
             config.triggers = config.triggers.filter(
-              (other) => other.uuid !== t.uuid
+              (other) => other.uuid !== item.uuid
             );
 
             // ✅ Remove card stack from DOM
@@ -390,14 +463,25 @@
       }
 
       card.onclick = () => {
-        iframe.contentWindow.postMessage(
-          { type: "showNewMessage", data: { triggerId: t.uuid } },
-          appUrl
-        );
-        toggleAppVisibility(true);
-        config.triggers = config.triggers.filter(
-          (other) => other.uuid !== t.uuid
-        );
+        if (isTrigger) {
+          iframe.contentWindow.postMessage(
+            { type: "showNewMessage", data: { triggerId: item.uuid } },
+            appUrl
+          );
+          toggleAppVisibility(true);
+          config.triggers = config.triggers.filter(
+            (other) => other.uuid !== item.uuid
+          );
+        } else {
+          // News item - open news detail
+          iframe.contentWindow.postMessage(
+            { type: "showNews", data: { newsSlug: item.slug } },
+            appUrl
+          );
+          toggleAppVisibility(true);
+          // Remove news item from config
+          config.news = config.news.filter((other) => other.slug !== item.slug);
+        }
         launcherStackContainer.remove();
       };
 
